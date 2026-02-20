@@ -21,3 +21,57 @@ function loadSong(song) {
 
 loadSong(songs[songIndex]);
 
+// Add play/pause controls
+function playSong() {
+  musicContainer.classList.add('play');
+  playBtn.querySelector('i.fas').classList.replace('fa-play', 'fa-pause');
+  audio.play();
+}
+
+function pauseSong() {
+  musicContainer.classList.remove('play');
+  playBtn.querySelector('i.fas').classList.replace('fa-pause', 'fa-play');
+  audio.pause();
+}
+
+playBtn.addEventListener('click', () => {
+  const isPlaying = musicContainer.classList.contains('play');
+  isPlaying ? pauseSong() : playSong();
+});
+
+// Generate next/prev song
+function prevSong() {
+  songIndex = (songIndex - 1 + songs.length) % songs.length;
+  loadSong(songs[songIndex]);
+  playSong();
+}
+
+function nextSong() {
+  songIndex = (songIndex + 1) % songs.length;
+  loadSong(songs[songIndex]);
+  playSong();
+}
+
+prevBtn.addEventListener('click', prevSong);
+nextBtn.addEventListener('click', nextSong);
+
+// Update progress bar
+function updateProgress(e) {
+  const { duration, currentTime } = e.srcElement;
+  const percent = (currentTime / duration) * 100;
+  progress.style.width = `${percent}%`;
+}
+
+audio.addEventListener('timeupdate', updateProgress);
+
+// Track seeking
+function setProgress(e) {
+  const width = this.clientWidth;
+  const clickX = e.offsetX;
+  audio.currentTime = (clickX / width) * audio.duration;
+}
+
+progressContainer.addEventListener('click', setProgress);
+
+// Auto-play next song
+audio.addEventListener('ended', nextSong);
